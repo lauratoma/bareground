@@ -177,14 +177,14 @@ Grid* lidar_to_bareground(const lidar_point_cloud* lp, const Grid* dsm_grid) {
    
   //erode 1
   dtm_grid= grid_erode(dsm_grid);
-  grid_grayscale_to_pixelbuffer(dtm_grid, pb);
+  //grid_grayscale_to_pixelbuffer(dtm_grid, pb);
   save_pixel_buffer_to_file(&pb, "map.erode1.grayscale.bmp");
   
   //erode 2
   tmpgrid = grid_erode(dtm_grid);
   grid_free(dtm_grid);
   dtm_grid = tmpgrid;
-  grid_grayscale_to_pixelbuffer(dtm_grid, pb);
+  //grid_grayscale_to_pixelbuffer(dtm_grid, pb);
   save_pixel_buffer_to_file(&pb, "map.erode2.grayscale.bmp");
    
   
@@ -192,14 +192,14 @@ Grid* lidar_to_bareground(const lidar_point_cloud* lp, const Grid* dsm_grid) {
   tmpgrid = grid_erode(dtm_grid);
   grid_free(dtm_grid);
   dtm_grid = tmpgrid;
-  grid_grayscale_to_pixelbuffer(dtm_grid, pb);
+  //grid_grayscale_to_pixelbuffer(dtm_grid, pb);
   save_pixel_buffer_to_file(&pb, "map.erode3.grayscale.bmp");
 
   //dilate 
   tmpgrid = grid_dilate(dtm_grid);
   grid_free(dtm_grid);
   dtm_grid = tmpgrid;
-  grid_grayscale_to_pixelbuffer(dtm_grid, pb);
+  // grid_grayscale_to_pixelbuffer(dtm_grid, pb);
   save_pixel_buffer_to_file(&pb, "map.dilate1.grayscale.bmp");
 
 

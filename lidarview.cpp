@@ -45,13 +45,13 @@ using namespace std;
 //these  need to be global because they  need to be rendered
 
 //the lidar points
-lidar_point_cloud lpoints;
+lidar_point_cloud* lpoints;
 
 //the DSM grid
 Grid* dsm_grid; 
 
-//the DTM grid
-Grid* dtm_grid; 
+//the bareground  grid
+Grid* bare_grid; 
 
 
 
@@ -206,22 +206,20 @@ int main(int argc, char** argv) {
 
   
   //this populates the global that holds the points
-  read_lidar_from_file(argv[1], &lpoints); 
+  lpoints = read_lidar_from_file(argv[1]); 
 
   //create the DSM 
-  dsm_grid = lidar_to_dsm(&lpoints); 
+  dsm_grid = lidar_to_dsm(lpoints); 
   grid_print_stats(dsm_grid, "dsm");  
   //grid_write_to_file("dsm.asc", dsm_grid);
 
-  grid_check(dsm_grid, "main"); 
-
-  //bitmaps
+  
   // FOR THE BITMAPS 
-  //const PixelBuffer pb = init_pixel_buffer(dsm_grid->ncols, dsm_grid->nrows);
+  const PixelBuffer pb = init_pixel_buffer(dsm_grid->ncols, dsm_grid->nrows);
+
   /*
   Grid * hillshade_grid = grid_init_from(dsm_grid);
   generate_hillshade(dsm_grid, hillshade_grid);
-  grid_print_stats(hillshade_grid, "hillshade");
   grid_to_pixelbuffer(hillshade_grid, pb);
   grid_free(hillshade_grid);
   printf("writing map.dsm.hillshade.bmp\n");  fflush(stdout); 
@@ -231,50 +229,24 @@ int main(int argc, char** argv) {
   printf("writing map.dsm.grayscale.bmp\n"); fflush(stdout); 
   save_pixel_buffer_to_file(&pb, "map.dsm.grayscale.bmp");
   */
-  //want the bare ground DTM grid
-  //erode 1
-  //print_neighbors(dsm_grid, 230, 454); 
-  dtm_grid= grid_erode(dsm_grid);
-  //grid_grayscale_to_pixelbuffer(dtm_grid, pb);
-  //save_pixel_buffer_to_file(&pb, "map.erode1.grayscale.bmp");
-  //print_neighbors(dsm_grid, 230, 454); 
-
-  //erode 2
-  dtm_grid = grid_erode(dtm_grid);
-  //grid_grayscale_to_pixelbuffer(dtm_grid, pb);
-  //save_pixel_buffer_to_file(&pb, "map.erode2.grayscale.bmp");
-   
-  /*
-  //erode 3
-  dtm_grid = grid_erode(dtm_grid);
-  grid_grayscale_to_pixelbuffer(dtm_grid, pb);
-  save_pixel_buffer_to_file(&pb, "map.erode3.grayscale.bmp");
-
-  //dilate 
-  dtm_grid = grid_dilate(dtm_grid);
-  grid_grayscale_to_pixelbuffer(dtm_grid, pb);
-  save_pixel_buffer_to_file(&pb, "map.dilate1.grayscale.bmp");
-  */
   
-  //free the pixel buffer
-  //deinit_pixel_buffer(&pb);
-  //grid_grayscale_to_pixelbuffer(dsm_grid, pb);
+  bare_grid= lidar_to_bareground(lpoints, dsm_grid);
   
+  classify(lpoints);
 
-  
-  // classify(lpoints);
+
   
   //set the length, width and height of the datasetm to be used in graphics
-  minx = lpoints.minx;
-  maxx = lpoints.maxx;
-  miny = lpoints.miny;
-  maxy = lpoints.maxy;
-  minz = lpoints.minz;
-  maxz = lpoints.maxz;
+  minx = lpoints->minx;
+  maxx = lpoints->maxx;
+  miny = lpoints->miny;
+  maxy = lpoints->maxy;
+  minz = lpoints->minz;
+  maxz = lpoints->maxz;
   
-  dim_x = lpoints.maxx - lpoints.minx; 
-  dim_y = lpoints.maxy - lpoints.miny; 
-  dim_z = lpoints.maxz - lpoints.minz; 
+  dim_x = lpoints->maxx - lpoints->minx; 
+  dim_y = lpoints->maxy - lpoints->miny; 
+  dim_z = lpoints->maxz - lpoints->minz; 
   scale = (dim_x > dim_y) ? 1.0/dim_x: 1.0/dim_y; 
   printf("\tdim_x = %.1f, dim_y = %.1f, dim_z=%.1f, scale=%f\n", dim_x, dim_y, dim_z, scale); 
 
@@ -739,7 +711,7 @@ int get_code(lidar_point p) {
 void draw_points(){
   
   //the actual points 
-  vector<lidar_point> data = lpoints.data;
+  vector<lidar_point> data = lpoints->data;
 
   GLfloat diff_x =  2 * (1.0 - dim_x*scale);
   GLfloat diff_y = 2 * (1.0 - dim_y*scale);

@@ -21,8 +21,7 @@ endif
 CC = g++ -O3 -Wall $(INCLUDEPATH)
 
 
-PROGS =  main 
-#lidarview
+PROGS =  main  lidarview
 default: $(PROGS)
 
 lidarview: lidarview.o  lidar.o grid.o map.o pixel_buffer.o
@@ -48,7 +47,6 @@ pixel_buffer.o: pixel_buffer.c pixel_buffer.h stb_image_write.h
 
 clean::	
 	rm *.o
+	rm main 
 	rm lidarview
-	rm main
-
 

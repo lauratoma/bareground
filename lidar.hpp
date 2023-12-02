@@ -119,6 +119,6 @@ lidar classification codes
 
 
 /* for every point p, it sets p.mycode to one of the codes above */
-void classify(lidar_point_cloud & points);
+void classify(lidar_point_cloud * points);
 
 #endif 
