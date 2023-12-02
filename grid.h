@@ -42,11 +42,11 @@ typedef struct gridpoint {
 // create a grid from file 
 Grid* grid_read_from_file(char* filename); 
 
-Grid* grid_clone(Grid* grid); 
+Grid* grid_clone(const Grid* grid); 
 
   
 //create a grid which is a clone of the grid passed as parameter
-Grid* grid_init_from(Grid* grid);
+Grid* grid_init_from(const Grid* grid);
 
 //create a grid  of these specs
 Grid* grid_init_from_specs(int nrows, int ncols,
@@ -56,11 +56,10 @@ Grid* grid_init_from_specs(int nrows, int ncols,
 void grid_print_stats(const Grid* g, char* name);
 
 //write grid to file, arcascii format 
-void  grid_write_to_file(char* filename, Grid* grid);
+void  grid_write_to_file(char* filename, const Grid* grid);
 
 //free space 
 void  grid_free(Grid* grid);
-
 
 //return true if (r,c) is inside the grid , including the boundary 
 static inline int inside_grid(const Grid* grid, int r, int c) {

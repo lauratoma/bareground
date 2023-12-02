@@ -56,23 +56,7 @@ static void grid_malloc_data(Grid* grid) {
     assert(grid->data);
   }
 }
-// helper function 
-// allocate space for the grid data.
-static void grid_malloc_data_initialize(Grid* grid, float initial_value) {
-  assert(grid); 
-  assert(grid->data == NULL); 
-  if (!grid->data) {
-    grid->data = (float*)malloc(grid->nrows * grid->ncols*sizeof(float));
-    assert(grid->data);
-    for (int i=0; i< grid->nrows * grid->ncols; i++)
-      grid->data[i] = initial_value; 
 
-    if (initial_value != grid->nodata_value) {
-      grid->min_value = initial_value;
-      grid->max_value = initial_value; 
-    }
-  }
-}
 
 //helper function 
 static void grid_read_data(FILE* in_file, Grid* grid) {
@@ -124,8 +108,8 @@ void grid_print_stats(const Grid* g, char* name) {
   //compute the average
   float avg = grid_get_avg_value(g); 
   int nnodata = grid_count_nodata(g); 
-  printf("grid %s (%p): \tn=%ld [rows=%d,cols=%d], range=[%.2f, %.2f], avg value=%.1f "
-	 "NODATA=%d (%.1f%%)\n",
+  printf("grid %s (%p):\n\tn=%10ld [rows=%5d,cols=%5d], range=[%8.2f, %8.2f], avg value=%8.1f "
+	 "NODATA=%5d (%3.1f%%)\n",
 	 name, g, 
 	 (long int)g->nrows*(long int)g->ncols, g->nrows, g->ncols, 
 	 g->min_value, g->max_value,  avg,
@@ -227,10 +211,10 @@ static void grid_copy_header(Grid* grid, Grid* new_grid) {
 
 /* ******************************************************************** */
 // Initialize a grid based on an existing grid, copying e.g. its dimensions.
-Grid* grid_init_from(Grid* grid) {
-  //Grid* new_grid = grid_init();
-  assert(grid && grid->data); 
-  Grid* new_grid = (Grid*) malloc(sizeof(Grid));
+Grid* grid_init_from(const Grid* grid) {
+
+  assert(grid && grid->data);
+  Grid* new_grid = grid_init();
   assert(new_grid); 
   //grid_copy_header(grid, new_grid);
   new_grid->nrows = grid->nrows;
@@ -245,8 +229,7 @@ Grid* grid_init_from(Grid* grid) {
   new_grid->nb_nodata_values = 0;
   
   // grid_malloc_data(new_grid);
-  printf("grid_init_from: allocating %d, %d\n", grid->nrows, grid->ncols); 
-  new_grid->data = (float*)malloc(grid->nrows * grid->ncols * sizeof(float));
+   new_grid->data = (float*)malloc(grid->nrows * grid->ncols * sizeof(float));
   assert(new_grid->data); 
   return new_grid;
 }
@@ -256,27 +239,13 @@ Grid* grid_init_from(Grid* grid) {
 
 /* ******************************************************************** */
 // Initialize a grid based on an existing grid, copying e.g. its dimensions.
-Grid* grid_clone(Grid* grid) {
-  //Grid* new_grid = grid_init();
-  assert(grid && grid->data); 
-  Grid* new_grid = (Grid*) malloc(sizeof(Grid));
+Grid* grid_clone(const Grid* grid) {
+ 
+  
+  Grid* new_grid = grid_init_from(grid);
   assert(new_grid); 
-  //grid_copy_header(grid, new_grid);
-  new_grid->nrows = grid->nrows;
-  new_grid->ncols = grid->ncols;
-  new_grid->xllcorner = grid->xllcorner;
-  new_grid->yllcorner = grid->yllcorner;
-  new_grid->cellsize = grid->cellsize;
-  new_grid->nodata_value = grid->nodata_value;
-  
-  new_grid->min_value = INT_MAX;
-  new_grid->max_value = -INT_MAX;
-  new_grid->nb_nodata_values = 0;
-  
-  // grid_malloc_data(new_grid);
-  printf("grid_init_from: allocating %d, %d\n", grid->nrows, grid->ncols); 
-  new_grid->data = (float*)malloc(grid->nrows * grid->ncols * sizeof(float));
-  assert(new_grid->data);
+
+  //copy data
   for (int i=0; i< grid->nrows * grid->ncols; i++) { 
     new_grid->data[i] = grid->data[i];
   }
@@ -290,7 +259,7 @@ Grid* grid_clone(Grid* grid) {
 //recompute min, max, nodata 
 void grid_reset_stats(Grid* grid) {
 
-  printf("reset_stats: start\n");
+  //printf("reset_stats: start\n");
   assert(grid && grid->data);
   grid->min_value = INT_MAX;
   grid->max_value = -INT_MAX;
@@ -313,8 +282,9 @@ void grid_reset_stats(Grid* grid) {
       if (h > grid->max_value) grid->max_value = h; 
     }
   }//for i
-  printf("\tmin set to %f, max set to %f\n", grid->min_value, grid->max_value);
-  printf("reset_stats: end\n");
+  printf("reset_stats: min=%f, max=%f, nb.nodata=%d\n",
+	 grid->min_value, grid->max_value, grid->nb_nodata_values);
+  //printf("reset_stats: end\n");
 } 
 
 
@@ -335,7 +305,6 @@ Grid* grid_init_from_specs(int nrows, int ncols,
 
  
   //initialize  to initial_value 
-  //grid_malloc_data_initialize(grid, initial_value);
   grid->data = (float*)malloc(grid->nrows * grid->ncols * sizeof(float));
   assert(grid->data);
   for (int i=0; i< grid->nrows * grid->ncols; i++) {
