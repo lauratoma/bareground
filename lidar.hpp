@@ -30,7 +30,7 @@ typedef struct _lidar_point {
 
 typedef struct _lidar_data {
 
-  vector<lidar_point> data; 
+  vector<lidar_point>* data; 
 
   //bounding box
   float  minx, maxx, miny, maxy, minz, maxz; 
@@ -42,7 +42,7 @@ typedef struct _lidar_data {
 //returns size (= nb points) 
 static inline int lidar_size(const lidar_point_cloud* lp) {
   assert(lp); 
-  return lp->data.size();
+  return lp->data->size();
 }
 
 //returns the i-th point
@@ -50,7 +50,7 @@ static inline lidar_point lidar_get(const lidar_point_cloud* lp, int i) {
 
   assert(lp); 
   assert(i>= 0 && i < lidar_size(lp)); 
-  return  lp->data.at(i);  // (*(lp->data))[i]; 
+  return  lp->data->at(i);  // (*(lp->data))[i]; 
 }
 
 //sets the i-th point
@@ -58,7 +58,7 @@ static inline void lidar_set(lidar_point_cloud* lp, int i, lidar_point p) {
 
   assert(lp); 
   assert(i>= 0 && i < lidar_size(lp)); 
-  lp->data.at(i) = p;  
+  lp->data->at(i) = p;  
 }
 
 //print all points 
@@ -119,6 +119,6 @@ lidar classification codes
 
 
 /* for every point p, it sets p.mycode to one of the codes above */
-void classify(lidar_point_cloud * points);
+void classify(lidar_point_cloud* points);
 
 #endif 

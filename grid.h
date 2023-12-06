@@ -29,9 +29,9 @@ typedef struct _grid {
 } Grid;
 
 
-typedef struct gridpoint {
+typedef struct _gridpoint {
     unsigned int r, c;
-} GridPoint;
+} grid_point;
 
 
 

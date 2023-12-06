@@ -711,16 +711,16 @@ int get_code(lidar_point p) {
 void draw_points(){
   
   //the actual points 
-  vector<lidar_point> data = lpoints->data;
+  vector<lidar_point>* data = lpoints->data;
 
   GLfloat diff_x =  2 * (1.0 - dim_x*scale);
   GLfloat diff_y = 2 * (1.0 - dim_y*scale);
   lidar_point p; 
   glBegin(GL_POINTS); 
-  for (int i=0; i < data.size(); i++) {
+  for (int i=0; i < data->size(); i++) {
 
     //current point; do we want to include it in the rendering? 
-    p = data[i]; 
+    p = data->at(i); 
     
     //FIRST FILTER BY RETURN
     if (which_return == FIRST_RETURN) // we only want first returns
@@ -763,9 +763,9 @@ void draw_points(){
     setColor(p);
     
     //tell openGL to render it
-    glVertex3f(xtoscreen(data[i].x, diff_x),
-	       ytoscreen(data[i].y, diff_y), 
-	       ztoscreen(data[i].z));
+    glVertex3f(xtoscreen(data->at(i).x, diff_x),
+	       ytoscreen(data->at(i).y, diff_y), 
+	       ztoscreen(data->at(i).z));
       
     //glVertex3f(data[i].x, data[i].y, data[i].z);
 

@@ -28,7 +28,7 @@ void lidar_add_point(lidar_point_cloud* lp, lidar_point p) {
   assert(lp);
 
   //add the point
-  lp->data.push_back(p);
+  lp->data->push_back(p);
   
   //update bounding box
   if (lidar_size(lp) == 1) {
@@ -55,7 +55,8 @@ void lidar_add_point(lidar_point_cloud* lp, lidar_point p) {
 lidar_point_cloud* read_lidar_from_file(char* fname) {
 
   lidar_point_cloud* points = (lidar_point_cloud*)malloc(sizeof(lidar_point_cloud));
-    
+  points->data = new vector<lidar_point>();
+     
   FILE* file = fopen(fname, "r"); 
   if (!file) {
     printf("read_lidar:from_file: cannot open file %s\n",  fname);

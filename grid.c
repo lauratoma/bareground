@@ -155,7 +155,7 @@ float grid_get_avg_value(const Grid* grid) {
 
   
 //helper function 
-static void grid_write_header(FILE* out_file, Grid* grid) {
+static void grid_write_header(FILE* out_file, const Grid* grid) {
   fprintf(out_file, "ncols %d\n",        grid->ncols);
   fprintf(out_file, "nrows %d\n",        grid->nrows);
   fprintf(out_file, "xllcorner %f\n",    grid->xllcorner);
@@ -167,7 +167,7 @@ static void grid_write_header(FILE* out_file, Grid* grid) {
 
 // helper function 
 // Write the complete asc file for a grid.
-static void grid_write(FILE* out_file, Grid* grid) {
+static void grid_write(FILE* out_file, const Grid* grid) {
 
   grid_write_header(out_file, grid);
   for (int r = 0; r < grid->nrows; r++) {
@@ -182,7 +182,7 @@ static void grid_write(FILE* out_file, Grid* grid) {
 
 /* ******************************************************************** */
 // Write the complete asc file for a grid.
-void grid_write_to_file(char* filename, Grid* grid) {
+void grid_write_to_file(char* filename, const Grid* grid) {
 
   FILE* outfile = fopen(filename, "w+");
   if (!outfile) {
