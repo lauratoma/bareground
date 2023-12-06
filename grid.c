@@ -107,7 +107,7 @@ void grid_print_stats(const Grid* g, char* name) {
 
   //compute the average
   float avg = grid_get_avg_value(g); 
-  int nnodata = grid_count_nodata(g); 
+  int nnodata = g->nb_nodata_values; 
   printf("grid %s (%p):\n\tn=%10ld [rows=%5d,cols=%5d], range=[%8.2f, %8.2f], avg value=%8.1f "
 	 "NODATA=%5d (%3.1f%%)\n",
 	 name, g, 
@@ -118,19 +118,6 @@ void grid_print_stats(const Grid* g, char* name) {
 }
 
 
-//return nb nodata values
-int grid_count_nodata(const Grid* grid) { 
-  assert(grid);
-  int nnodata=0; 
-  for (int r=0; r<grid->nrows; r++) {
-    for (int c=0; c<grid->ncols; c++) {
-      if (grid_is_nodata(grid, r, c)) {
-	nnodata++;
-      }
-    }
-  }
-  return nnodata;  
-}
     
 //return average value 
 float grid_get_avg_value(const Grid* grid) {
@@ -142,8 +129,8 @@ float grid_get_avg_value(const Grid* grid) {
     if (grid->data[i]!= grid->nodata_value) {
       sum+=grid->data[i];
       nvalues++; 
-    }//int i 
-  }
+    }
+  }//int i 
   
   //return sum /(float)(grid->nrows*grid->ncols);
   return sum /(float)(nvalues); 
@@ -246,46 +233,19 @@ Grid* grid_clone(const Grid* grid) {
   assert(new_grid); 
 
   //copy data
-  for (int i=0; i< grid->nrows * grid->ncols; i++) { 
-    new_grid->data[i] = grid->data[i];
+  //for (int i=0; i< grid->nrows * grid->ncols; i++) { 
+  // new_grid->data[i] = grid->data[i];
+  //}
+  for (int r=0; r<grid->nrows; r++) {
+    for (int c=0; c<grid->ncols; c++) {
+      grid_set(new_grid, r, c, grid_get(grid, r, c)); 
+    }
   }
   return new_grid;
 }
 /* ******************************************************************** */
 
 
-
-
-//recompute min, max, nodata 
-void grid_reset_stats(Grid* grid) {
-
-  //printf("reset_stats: start\n");
-  assert(grid && grid->data);
-  grid->min_value = INT_MAX;
-  grid->max_value = -INT_MAX;
-  grid->nb_nodata_values = 0;
-  
-  for (int i=0; i< grid->nrows * grid->ncols; i++) { 
-    float h = grid->data[i]; 
-    //assert(h == grid->nodata_value || h >= grid->min_value);
-    if (h!= grid->nodata_value && h < 10) {
-      printf("ERROR reset_stats: i=%d h=%f\n", i, h);
-      assert(0); 
-      exit(1); 
-    } 
-    
-    if (h==grid->nodata_value) {
-      grid->nb_nodata_values++;
-    } else {
-      
-      if (h < grid->min_value) grid->min_value = h; 
-      if (h > grid->max_value) grid->max_value = h; 
-    }
-  }//for i
-  printf("reset_stats: min=%f, max=%f, nb.nodata=%d\n",
-	 grid->min_value, grid->max_value, grid->nb_nodata_values);
-  //printf("reset_stats: end\n");
-} 
 
 
 /* ******************************************************************** */
@@ -313,11 +273,38 @@ Grid* grid_init_from_specs(int nrows, int ncols,
   
   grid->min_value = initial_value;
   grid->max_value = initial_value; 
-    
+  if (initial_value == nodata_value)
+    grid->nb_nodata_values = nrows*ncols;
+  else 
+    grid->nb_nodata_values = 0;
   return grid;
 }
 /* ******************************************************************** */
 
+
+
+//recompute min, max, nodata 
+void grid_reset_stats(Grid* grid) {
+
+  //printf("reset_stats: start\n");
+  assert(grid && grid->data);
+  grid->min_value = INT_MAX;
+  grid->max_value = -INT_MAX;
+  grid->nb_nodata_values = 0;
+  
+  for (int i=0; i< grid->nrows * grid->ncols; i++) { 
+    float h = grid->data[i]; 
+    if (h==grid->nodata_value) {
+      grid->nb_nodata_values++;
+    } else {
+      if (h < grid->min_value) grid->min_value = h; 
+      if (h > grid->max_value) grid->max_value = h; 
+    }
+  }//for i
+  printf("reset_stats: min=%f, max=%f, nb.nodata=%d\n",
+	 grid->min_value, grid->max_value, grid->nb_nodata_values);
+  //printf("reset_stats: end\n");
+} 
 
 
 /* ******************************************************************** */

@@ -79,9 +79,6 @@ static inline float grid_get(const Grid* grid, int r, int c) {
 //return average value 
 float grid_get_avg_value(const Grid* grid);
 
-//return nb nodata values
-int grid_count_nodata(const Grid* grid); 
-
   
 //return true if grid(r,c) is nodata 
 static inline bool  grid_is_nodata(const Grid* grid, int r, int c) {
